@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .topnav {
+        overflow: hidden;
+        background-color: #333;
+      }
+      .topnav a {
+        float: left;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+      }
+      .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+      .topnav a.active {
+        background-color: #04AA6D;
+        color: white;
+      }
+      .topnav-right {
+        float: right;
+      }
+      .footer {
+        position: fixed;
+        left: 0;
+        width: 100%;
+        padding: 40px;
+        bottom: 0px;
+
+        background-color: red;
+        color: white;
+        text-align: center;
+      }
+      .row{
+        display: flex;
+      }
+      #devices {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      #devices td, #devices th {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+
+      #devices tr:nth-child(even){background-color: #f2f2f2;}
+
+      #devices tr:hover {background-color: #ddd;}
+
+      #devices th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #04AA6D;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topnav">
+      <a class="active" href="/">Home</a>
+      <a href="#news">News</a>
+      <a href="#contact">Contact</a>
+      <% if(ret.username==false){ %>
+        <div class="topnav-right">
+          <a href="/login">Login</a>
+          <a href="/register">Register</a>
+        </div>
+      <% }%>
+      <%if(ret.username){ %>
+        <div class="topnav-right">
+          <a href="/console/">Console</a>
+          <a href="/account/"><%=ret.username %></a>
+        </div>
+      <%}%>
+    </div>
+    <div class="main">
+      <table id="devices">
+        <tr>
+          <td>Name</td>
+          <td>Location</td>
+          <td>Status</td>
+          <td>Connection</td>
+        </tr>
+        <%for(var i=0;i<device.connections.length;i++){%>
+
+          <tr>
+
+            <td><%=device.name%></td>
+            <td><%=device.location%></td>
+            <td><%=device.status%></td>
+            <td><%=device.connections[i].beacon%></td>
+            <!-- <form class="" action="/console/?device=<%=device.name%>" method="post">
+            <input type="submit" name="status" value="active" placeholder="Activate">
+            <input type="submit" name="status" value="inactive" placeholder="Deactivate">
+          </form> -->
+        </tr>
+        <%}%>
+      </table>
+      <form class="" action="/console/?device=<%=device.name%>" method="post">
+        <input type="text" name="connection" placeholder="Connection">
+        <input type="submit" value="Send">
+      </form>
+    </div>
+    <div class="footer">
+      <h1>ciao</h1>
+    </div>
+  </body>
+</html>
