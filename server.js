@@ -67,7 +67,12 @@ app.get('/',(req,res)=>{
     console.log(req.user.username);
     user_name = req.user.username;
   }
-  res.render('home',{username:user_name})
+  if(req.device){
+    res.render('home',{username:user_name,device:req.device})
+  }
+  else{
+    res.render('home',{username:user_name})
+  }
 })
 
 app.get('/login',checkNotAuthenticated,async(req,res)=>{
@@ -193,6 +198,7 @@ app.post('/console/',checkAuthenticated,async(req,res)=>{
 })
 
 app.post('/devices/uplink',async (req,res)=>{
+  req.device = req.body;
   await postUplink(req.body.name,req.body.hotspots);
   console.log(req.body);
   res.render("200")
