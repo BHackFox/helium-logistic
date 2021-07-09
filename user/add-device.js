@@ -11,7 +11,12 @@ async function run(query,device) {
     const user = database.collection('users');
     const result = await user.findOne({username:query});
     await user.update({username:query},{$push:{Devices:device}});
-    await client.close();
+    // const database1 = client.db('deviceDB');
+    // const device = database1.collection('devices');
+    // await device.insertOne({username:query,Device:device});
+    // var result = await device.findOne({username:query});
+    // console.log("Result: ",result);
+    await client.close()
     return result;
   }
   catch{

@@ -16,6 +16,8 @@ const addDevice = require('./user/add-device')
 const updateDevice = require('./user/update-device')
 const updateAccount = require('./user/update-account')
 const addDeviceConnection = require('./user/add-device-connection')
+const postUplink = require('./device/post-uplink')
+
 // initializePassport(passport,
 //   username => users.find(user => user.username == username),
 //   id => users.find(user => user.id == id)
@@ -188,6 +190,12 @@ app.post('/console/',checkAuthenticated,async(req,res)=>{
 
   }
   res.redirect('/console/'+redir)
+})
+
+app.post('/devices/uplink',async (req,res)=>{
+  await postUplink(req.body.name,req.body.hotspots);
+  console.log(req.body);
+  res.render("200")
 })
 
 function checkNotAuthenticated(req,res,next){
