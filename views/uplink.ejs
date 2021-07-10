@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <form action="/devices/uplink" method="post">
+      <input type="text" name="name" placeholder="Name">
+      <input type="text" name="hotspots" placeholder="hotspots">
+      <input type="submit" value="Send">
+    </form>
+    <%for (var i=0;i<result.length; i++){%>
+      <h1><%=result[i]%></h1>
+    <%}%>
+  </body>
+</html>
