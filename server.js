@@ -201,17 +201,20 @@ app.post('/console/',checkAuthenticated,async(req,res)=>{
 app.get('/devices/uplink',(req,res)=>{
   res.render('uplink',{result:""})
 })
+
 app.get('/devices/uplink/get',async (req,res)=>{
   var dev = await getDevices();
   console.log(dev);
   res.render('uplink',{result:dev})
 })
 
-app.post('/devices/uplink',async (req,res)=>{
-  req.device = req.body;
-  await postUplink(req.body.name,req.body.hotspots);
+app.post('/devices/uplink',(req,res)=>{
+ // req.device = req.body;
+  //await postUplink(req.body.name,req.body.hotspots);
+  console.log(req);
   console.log(req.body);
-  res.redirect('/devices/uplink')
+  res.status(200);
+  res.send("Dati trasmessi");
 })
 
 function checkNotAuthenticated(req,res,next){
