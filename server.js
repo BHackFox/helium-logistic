@@ -214,11 +214,11 @@ app.get('/devices/uplink/get',async (req,res)=>{
   res.render('uplink',{result:dev})
 })
 //app.use(bodyParser.urlencoded());
-app.post('/devices/uplink',(req,res)=>{
+app.post('/devices/uplink',async (req,res)=>{
  // req.device = req.body;
-  //await postUplink(req.body.name,req.body.hotspots);
+  await postUplink(req.body.name,req.body.decoded.payload);
   //console.log(req);
-  console.log(req.body,Date.now());
+  console.log(Date.now());
   //console.log(res);
   res.status(200);
   res.send("Dati trasmessi");

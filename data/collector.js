@@ -93,6 +93,7 @@ var group = {
 // Editor: Gestore dei devices -> sottogruppi: user
 // User: Visualizzatore dei device -> sottogruppi: nessuno
 
+// Creazione dei ruoli
 var role = {
-  
+  Access:[CREATE,ADD,DELETE,MODIFY,USER,SETTING]
 }

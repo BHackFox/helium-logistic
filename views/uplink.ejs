@@ -3,15 +3,50 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <style media="screen">
+      #devices {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      #devices td, #devices th {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+
+      #devices tr:nth-child(even){background-color: #f2f2f2;}
+
+      #devices tr:hover {background-color: #ddd;}
+
+      #devices th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #04AA6D;
+        color: white;
+      }
+    </style>
   </head>
   <body>
-    <form action="/devices/uplink" method="post">
-      <input type="text" name="name" placeholder="Name">
-      <input type="text" name="hotspots" placeholder="hotspots">
-      <input type="submit" value="Send">
-    </form>
-    <%for (var i=0;i<result.length; i++){%>
-      <h1><%=result[i].Data%></h1>
-    <%}%>
+    <div>
+      <table id="devices">
+        <tr>
+          <td>Device Name</td>
+          <td>Name</td>
+          <td>Time</td>
+
+        </tr>
+        <%for (var i=0;i<result.length; i++){%>
+          <%if(result[i].Data && result[i].Data.name){%>
+            <tr>
+              <td><%=result[i].deviceName%></td>
+              <td><%=result[i].Data.name%></td>
+              <td><%=result[i].Time%></td>
+            </tr>
+            <%}%>
+          <%}%>
+      </table>
+    </div>
   </body>
 </html>
