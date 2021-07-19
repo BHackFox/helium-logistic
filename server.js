@@ -18,6 +18,7 @@ const updateAccount = require('./user/update-account')
 const addDeviceConnection = require('./user/add-device-connection')
 const postUplink = require('./device/post-uplink')
 const getDevices = require('./device/get-device')
+var bodyParser = require('body-parser')
 // initializePassport(passport,
 //   username => users.find(user => user.username == username),
 //   id => users.find(user => user.id == id)
@@ -26,6 +27,11 @@ initializePassport(passport,
   async username => await infoLogin({username:username}),
   async id => await infoLogin({id:id})
 )
+
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(bodyParser.json());
 
 var beacons = []
 
@@ -207,12 +213,13 @@ app.get('/devices/uplink/get',async (req,res)=>{
   console.log(dev);
   res.render('uplink',{result:dev})
 })
-
+//app.use(bodyParser.urlencoded());
 app.post('/devices/uplink',(req,res)=>{
  // req.device = req.body;
   //await postUplink(req.body.name,req.body.hotspots);
-  console.log(req);
-  console.log(req.body);
+  //console.log(req);
+  console.log(req.body,Date.now());
+  //console.log(res);
   res.status(200);
   res.send("Dati trasmessi");
 })
