@@ -35,7 +35,7 @@ var device = {
       dataID:null,
       time:null,
       status:null,
-      long:null,
+      lon:null,
       lat:null,
       stat:null
     }
@@ -77,12 +77,15 @@ var group = {
           time:null
         }
       ],
-      beacons:{
-        name:null,
-        timelast:null
-      }
     }
-  ]
+  ],
+  beacons:{
+    name:null,
+    time:[
+      null,
+      null
+    ]
+  }
 }
 
 // L'oggetto group è molto articolato
