@@ -42,7 +42,8 @@
             <tr>
               <td><%=result[i].deviceName%></td>
               <td><%=result[i].Data.name%></td>
-              <td><%=result[i].Time%></td>
+              <% var a = new Date(result[i].Time);var year = a.getYear()-100; month = a.getMonth()+1;var date = a.getDate();var hour = a.getHours();var min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();var sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds();; var time = date + '/' + month + '/' + year + ' ' + hour + ':' + min + ':' + sec;%>
+              <td><%=time%></td>
             </tr>
             <%}%>
           <%}%>
