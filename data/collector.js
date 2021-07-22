@@ -100,3 +100,20 @@ var group = {
 var role = {
   Access:[CREATE,ADD,DELETE,MODIFY,USER,SETTING]
 }
+
+var invite = {
+  groupID:null,
+  userLink:null,
+  userInvited:null,
+  userRole:null,
+  time:null,
+  timeAccept:null
+}
+
+// Devo creare un database dove inserire gli inviti
+// Bisogna aggiornare gli inviti in timeAccept perche una persona non puo entrare 2 volte dallo stesso invito
+// Devo creare anche una classe di elementi sul server.js
+// Bisogna creare la pagina ejs degli inviti
+// Devo capire come funziona l'email
+// Bisogna fare il collegamento tra i due database (gruppo e inviti)
+// Creare un link alla domanda di invito
