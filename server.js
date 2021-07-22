@@ -238,8 +238,9 @@ app.get('/devices/uplink',(req,res)=>{
   res.render('uplink',{result:""})
 })
 
-app.get('/devices/uplink/get',async (req,res)=>{
-  var dev = await getDevices();
+app.get('/devices/uplink/get',checkAuthenticated,async (req,res)=>{
+  var account = await accountInfo({username:req.user.username})
+  var dev = await getDevices(account.Group.groupID);
   console.log(dev);
   res.render('uplink',{result:dev})
 })
