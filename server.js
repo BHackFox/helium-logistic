@@ -246,7 +246,19 @@ app.get('/devices/uplink/get',async (req,res)=>{
 //app.use(bodyParser.urlencoded());
 app.post('/devices/uplink',async (req,res)=>{
  // req.device = req.body;
-  await postUplink(req.body.name,req.body.decoded.payload);
+ var b = req.body;
+ var data = {
+   deviceID:b.decoded.payload.deviceID,
+   groupID:b.decoded.payload.groupID,
+   status:"UP",
+   lat:b.decoded.payload.lat,
+   lon:b.decoded.payload.lon,
+   stat:b.decoded.payload.stat
+   // beacon:{
+   //
+   // }
+ }
+  await postUplink(data);
   //console.log(req);
   console.log(Date.now());
   //console.log(res);
