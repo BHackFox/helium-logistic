@@ -101,20 +101,15 @@
           <tr>
 
             <td><%=device.data[i].dataID%></td>
-            <td><%=device.data[i].time%></td>
+            <% var a = new Date(device.data[i].time);var year = a.getYear()-100; month = a.getMonth()+1;var date = a.getDate();var hour = a.getHours();var min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();var sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds();; var time = date + '/' + month + '/' + year + ' ' + hour + ':' + min + ':' + sec;%>
+            <td><%=time%></td>
             <td><%=device.data[i].lat%></td>
             <td><%=device.data[i].lon%></td>
             <td><%=device.data[i].status%></td>
         </tr>
         <%}%>
       </table>
-      <form class="" action="/console/?device=<%=device.name%>" method="post">
-        <input type="text" name="connection" placeholder="Connection">
-        <input type="submit" value="Send">
-      </form>
-    </div>
-    <div class="footer">
-      <h1>ciao</h1>
+
     </div>
   </body>
 </html>
