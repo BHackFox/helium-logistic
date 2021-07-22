@@ -244,6 +244,7 @@ app.get('/devices/uplink/get',checkAuthenticated,async (req,res)=>{
   console.log(dev);
   res.render('uplink',{result:dev})
 })
+
 //app.use(bodyParser.urlencoded());
 app.post('/devices/uplink',async (req,res)=>{
  // req.device = req.body;
