@@ -12,13 +12,13 @@ const addUser = require('./user/new-user')
 const infoLogin = require('./user/login-info')
 const accountInfo = require('./user/get-account-info')
 const mail = require('./mail/server')
-const addDevice = require('./user/add-device')
+const addDevice = require('./device/add-device')
 const updateDevice = require('./user/update-device')
 const updateAccount = require('./user/update-account')
 const addDeviceConnection = require('./user/add-device-connection')
 const postUplink = require('./device/post-uplink')
 const getDevices = require('./device/get-device')
-var bodyParser = require('body-parser')
+const bodyParser = require('body-parser')
 const groupPost = require('./group/group-post')
 const groupGet = require('./group/group-get')
 // initializePassport(passport,
@@ -29,6 +29,7 @@ initializePassport(passport,
   async username => await infoLogin({username:username}),
   async id => await infoLogin({id:id})
 )
+
 
 app.use(bodyParser.urlencoded({
   extended: true
