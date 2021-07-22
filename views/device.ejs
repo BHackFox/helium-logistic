@@ -96,8 +96,8 @@
           <td>Longitude</td>
           <td>Status</td>
         </tr>
-        <%for(var i=0;i<device.data.length;i++){%>
-
+        <%for(var k=0;k<device.data.length;k++){%>
+          <% var i = device.data.length-k-1;
           <tr>
 
             <td><%=device.data[i].dataID%></td>
