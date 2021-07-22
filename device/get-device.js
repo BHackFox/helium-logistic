@@ -1,15 +1,15 @@
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb://mongo:27017/userSchema";
+const uri = "mongodb://localhost:27017/userSchema";
 
 
-async function run() {
+async function run(groupID) {
   const client = await MongoClient.connect(uri, { useNewUrlParser: true ,useUnifiedTopology: true })
   .catch(err => { console.log(err); });
   try {
     const database = client.db('deviceDB');
     const user = database.collection('devices');
-    const result = await user.find({}).toArray();
+    const result = await user.find({groupID:groupID}).toArray();
     await client.close();
     return result;
   }

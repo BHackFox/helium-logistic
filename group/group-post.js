@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb://mongo:27017/userSchema";
+const uri = "mongodb://localhost:27017/userSchema";
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -8,10 +8,10 @@ const client = new MongoClient(uri, {
 });
 
 async function run(user,name) {
-  console.log(query);
+  //console.log(query);
   var data = {
     groupName:name,
-    groupID:Date.now().toString('hex'),
+    groupID:Date.now(),
     groupCreator:{
       userName:user.username,
       userID:user.id,
@@ -32,9 +32,11 @@ async function run(user,name) {
     const database = client.db('groupDB');
     const group = database.collection('groups');
     const result = await group.insertOne(data);
+    //console.log(result);
   } finally {
     // Ensures that the client will close when you finish/error
     await client.close();
+    return data.groupID;
   }
 }
 

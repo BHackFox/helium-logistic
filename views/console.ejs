@@ -73,10 +73,10 @@
       <a class="active" href="/">Home</a>
       <a href="#news">News</a>
       <a href="#contact">Contact</a>
-      <%if(username){ %>
+      <%if(account.username){ %>
         <div class="topnav-right">
           <a href="/console/">Console</a>
-          <a href="/account/"><%=username %></a>
+          <a href="/account/"><%=account.username %></a>
         </div>
       <%}%>
     </div>
@@ -84,13 +84,13 @@
       <tr>
         <td>Device ID</td>
         <td>Name</td>
-        <td>Status</td>
+        <td>Group</td>
       </tr>
-      <%for (var i=0;i<Devices.length;i++){%>
+      <%for (var i=0;i<devices.length;i++){%>
         <tr>
-          <td>#<%=i+1%></td>
-          <td><a href="/console/?device=<%=Devices[i].name%>"><%=Devices[i].name%></a></td>
-          <td><%=Devices[i].status%></td>
+          <td>#<%=devices[i].deviceID%></td>
+          <td><a href="/console/?device=<%=devices[i].deviceID%>"><%=devices[i].deviceName%></a></td>
+          <td><%=devices[i].groupID%></td>
         </tr>
         <%}%>
     </table>

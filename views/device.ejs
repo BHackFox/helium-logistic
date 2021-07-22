@@ -73,35 +73,37 @@
       <a class="active" href="/">Home</a>
       <a href="#news">News</a>
       <a href="#contact">Contact</a>
-      <% if(ret.username==false){ %>
+      <% if(account.username==false){ %>
         <div class="topnav-right">
           <a href="/login">Login</a>
           <a href="/register">Register</a>
         </div>
       <% }%>
-      <%if(ret.username){ %>
+      <%if(account.username){ %>
         <div class="topnav-right">
           <a href="/console/">Console</a>
-          <a href="/account/"><%=ret.username %></a>
+          <a href="/account/"><%=account.username %></a>
         </div>
       <%}%>
     </div>
     <div class="main">
+      <h1 style={text-align: center}><%=device.deviceName%></h1>
       <table id="devices">
         <tr>
-          <td>Name</td>
-          <td>Location</td>
+          <td>Data ID</td>
+          <td>Time</td>
+          <td>Latitude</td>
+          <td>Longitude</td>
           <td>Status</td>
-          <td>Connection</td>
         </tr>
-        <%for(var i=0;i<device.connections.length;i++){%>
+        <%for(var i=0;i<device.data.length;i++){%>
 
           <tr>
 
-            <td><%=device.name%></td>
-            <td><%=device.location%></td>
+            <td><%=device.data.dataID%></td>
+            <!-- <td><%=device.location%></td>
             <td><%=device.status%></td>
-            <td><%=device.connections[i].beacon%></td>
+            <td><%=device.connections[i].beacon%></td> -->
             <!-- <form class="" action="/console/?device=<%=device.name%>" method="post">
             <input type="submit" name="status" value="active" placeholder="Activate">
             <input type="submit" name="status" value="inactive" placeholder="Deactivate">

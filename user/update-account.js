@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb://mongo:27017/userSchema";
+const uri = "mongodb://localhost:27017/userSchema";
 
 
 async function run(query,data) {
@@ -16,6 +16,9 @@ async function run(query,data) {
     }
     if(data.blackTheme){
       await user.updateOne({username:query},{$set:{"Settings.blackTheme":data.blackTheme}});
+    }
+    if(data.info){
+      await user.updateOne({username:query},{$set:{"Group.groupName":data.groupName,"Group.groupID":data.groupID,"Group.groupRole":data.groupRole}})
     }
     await client.close();
   }

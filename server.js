@@ -19,6 +19,8 @@ const addDeviceConnection = require('./user/add-device-connection')
 const postUplink = require('./device/post-uplink')
 const getDevices = require('./device/get-device')
 var bodyParser = require('body-parser')
+const groupPost = require('./group/group-post')
+const groupGet = require('./group/group-get')
 // initializePassport(passport,
 //   username => users.find(user => user.username == username),
 //   id => users.find(user => user.id == id)
@@ -70,14 +72,10 @@ app.get('/',(req,res)=>{
 
   var user_name = false;
   if(req.user){
-    console.log(req.user.username);
-    user_name = req.user.username;
+    res.render('home',{username:req.user.username,Group:req.user.Group})
   }
-  if(req.device){
-    res.render('home',{username:user_name,device:req.device})
-  }
-  else{
-    res.render('home',{username:user_name,device:{}})
+  else {
+    res.render('home',{username:false,Group:false})
   }
 })
 
@@ -105,7 +103,7 @@ app.post('/register', async(req,res)=>{
       Settings:{
         blackTheme: false
       },
-      Devices:[]
+      Group:{}
     };
     users.push(newUser);
     await addUser(newUser);
@@ -144,34 +142,44 @@ app.get('/mail',(req,res)=>{
 })
 
 app.get('/console/',checkAuthenticated,async(req,res)=>{
-  var ret = await accountInfo({username:req.user.username});
-  if(req.query.device){
-    var device = ret.Devices.find(item => item.name == req.query.device)
-    console.log({ret,device});
-    res.render('device',{ret,device})
+  var account = await accountInfo({username:req.user.username});
+  if(account.Group.groupID){
+    var devices = await getDevices(account.Group.groupID);
+    //console.log({ret,device});
+    if (req.query.device){
+      var device = devices.find(id => id.deviceID == req.query.device);
+      if(device){
+        res.render('device',{account,device})
+      }
+      else{
+        res.redirect('/console/')
+      }
+    }
+
+    else{
+
+      res.render('console',{account,devices})
+    }
   }
   else{
     console.log(ret);
-    res.render('console',ret)
+    res.redirect('/group')
   }
 })
 
 app.post('/console/',checkAuthenticated,async(req,res)=>{
-  var ret = await accountInfo({username:req.user.username});
+  var account = await accountInfo({username:req.user.username});
   if(req.body.device){
     var device = {
-      name : req.body.device,
-      location : '',
-      status : 'inactive',
-      connections : [],
-      beacons : {}
+      deviceName : req.body.device,
+      deviceID : Date.now()
     }
-    if (!ret.Devices.find(device => device.name == req.body.device)){
-      await addDevice(req.user.username,device);
-    }
-    else{
-      console.log("Dispositivo gia esistente");
-    }
+    // if (!ret.Devices.find(device => device.name == req.body.device)){
+    await addDevice(account.Group.groupID,device);
+    // }
+    // else{
+    //   console.log("Dispositivo gia esistente");
+    // }
     //req.user.Devices.push(device);
   }
   var redir = "";
@@ -203,6 +211,27 @@ app.post('/console/',checkAuthenticated,async(req,res)=>{
   res.redirect('/console/'+redir)
 })
 
+
+app.get('/group',checkAuthenticated,async(req,res)=>{
+  var account = await accountInfo({username:req.user.username})
+  var group = await groupGet({groupID:account.Group.groupID})
+  console.log(group);
+  res.render('group',{data:account,data1:group})
+})
+
+app.post('/group',checkAuthenticated,async(req,res)=>{
+  var account = await accountInfo({username:req.user.username})
+  if(!account.Group.groupID){
+    var groupID = await groupPost(req.user,req.body.name);
+    var data = {info:true,groupID:groupID,groupName:req.body.name,groupRole:'CREATOR'}
+    await updateAccount(req.user.username,data)
+    //console.log(req.user);
+    res.redirect('/group');
+  }
+  else{
+    res.redirect('/group')
+  }
+})
 
 app.get('/devices/uplink',(req,res)=>{
   res.render('uplink',{result:""})
