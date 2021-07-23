@@ -22,7 +22,7 @@ async function run(deviceData) {
 
     const database1 = client.db('groupDB');
     const group = database1.collection('groups');
-    await group.update({groupID:deviceData.groupID,"Devices.deviceID":deviceData.deviceID},{$set:{"Devices.$":data}})
+    await group.update({groupID:deviceData.groupID,"Devices.deviceID":deviceData.deviceID},{$set:{"Devices.$.lastData":data}})
     await client.close();
   }
   catch(e){

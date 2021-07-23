@@ -145,9 +145,11 @@ app.get('/mail',(req,res)=>{
 app.get('/console/',checkAuthenticated,async(req,res)=>{
   var account = await accountInfo({username:req.user.username});
   if(account.Group.groupID){
-    var devices = await getDevices(account.Group.groupID);
+    var group = await groupGet({groupID:account.Group.groupID});
     //console.log({ret,device});
+    console.log(group);
     if (req.query.device){
+      var devices = await getDevices(account.Group.groupID);
       var device = devices.find(id => id.deviceID == req.query.device);
       if(device){
         res.render('device',{account,device})
@@ -159,7 +161,7 @@ app.get('/console/',checkAuthenticated,async(req,res)=>{
 
     else{
 
-      res.render('console',{account,devices})
+      res.render('console',{account,group})
     }
   }
   else{

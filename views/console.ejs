@@ -86,11 +86,11 @@
         <td>Name</td>
         <td>Group</td>
       </tr>
-      <%for (var i=0;i<devices.length;i++){%>
+      <%for (var i=0;i<group.Devices.length;i++){%>
         <tr>
-          <td>#<%=devices[i].deviceID%></td>
-          <td><a href="/console/?device=<%=devices[i].deviceID%>"><%=devices[i].deviceName%></a></td>
-          <td><%=devices[i].groupID%></td>
+          <td>#<%=group.Devices[i].deviceID%></td>
+          <td><a href="/console/?device=<%=group.Devices[i].deviceID%>"><%=group.Devices[i].deviceName%></a></td>
+          <td><%=group.groupID%></td>
         </tr>
         <%}%>
     </table>
