@@ -66,7 +66,16 @@
         <h1><%=data1.groupID%></h1>
         <h1>Creator:</h1>
         <h1><%=data1.groupCreator.userName%> <%=data1.groupCreator.userID%></h1>
-
+        <%for(var i=0;i<data1.members.length;i++){%>
+          <h1>Member ID: <%=data1.members[i].memberID%></h1>
+          <h1>Member Name: <%=data1.members[i].memberName%></h1>
+          <h1>Member Role: <%=data1.members[i].memberRole%></h1>
+        <%}%>
+        <form action="/group/invite" method="post">
+          <input type="text" name="memberID" placeholder="Invite">
+          <input type="text" name="memberRole" placeholder="Role">
+          <input type="submit" value="Send">
+        </form>
       <%}%>
       <%if(!data1){%>
         <form action="/group" method="post">

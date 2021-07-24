@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb://mongo:27017/userSchema";
+const uri = "mongodb://localhost:27017/userSchema";
 
 
 async function run(query,data) {

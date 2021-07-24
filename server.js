@@ -21,6 +21,7 @@ const getDevices = require('./device/get-device')
 const bodyParser = require('body-parser')
 const groupPost = require('./group/group-post')
 const groupGet = require('./group/group-get')
+const addGroupMember = require('./group/add-group-member')
 // initializePassport(passport,
 //   username => users.find(user => user.username == username),
 //   id => users.find(user => user.id == id)
@@ -91,6 +92,11 @@ app.post('/login',passport.authenticate('local',{
 
 app.get('/register',checkNotAuthenticated,(req,res)=>{
   res.render('register');
+})
+
+app.get('/logout',checkAuthenticated,(req,res)=>{
+  req.logout();
+  res.redirect('/');
 })
 
 app.post('/register', async(req,res)=>{
@@ -247,6 +253,21 @@ app.get('/devices/uplink/get',checkAuthenticated,async (req,res)=>{
   res.render('uplink',{result:dev})
 })
 
+app.post('/group/invite',checkAuthenticated,async (req,res)=>{
+  var account = await accountInfo({username:req.user.username});
+  console.log(req.body.memberID);
+  var member = await accountInfo({id:parseInt(req.body.memberID)})
+  console.log(member);
+  var group = await groupGet({groupID:account.Group.groupID});
+  var data = {
+    memberName:member.username,
+    memberID:member.id,
+    memberRole:req.body.memberRole
+  }
+  await addGroupMember(group.groupID,data);
+  res.redirect('/group');
+})
+
 //app.use(bodyParser.urlencoded());
 app.post('/devices/uplink',async (req,res)=>{
  // req.device = req.body;
@@ -255,8 +276,8 @@ app.post('/devices/uplink',async (req,res)=>{
    deviceID:b.decoded.payload.deviceID,
    groupID:b.decoded.payload.groupID,
    status:"UP",
-   lat:b.decoded.payload.lat,
-   lon:b.decoded.payload.lon,
+   lat:b.hotspots[0].lat,
+   lon:b.hotspots[0].long,
    stat:b.decoded.payload.stat
    // beacon:{
    //
