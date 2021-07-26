@@ -22,6 +22,8 @@ const bodyParser = require('body-parser')
 const groupPost = require('./group/group-post')
 const groupGet = require('./group/group-get')
 const addGroupMember = require('./group/add-group-member')
+const getInvite = require('./invite/get-invite')
+const postInvite = require('./invite/post-invite')
 // initializePassport(passport,
 //   username => users.find(user => user.username == username),
 //   id => users.find(user => user.id == id)
@@ -112,9 +114,15 @@ app.post('/register', async(req,res)=>{
       },
       Group:{}
     };
-    users.push(newUser);
-    await addUser(newUser);
-    res.redirect('/login');
+    var userExist = await infoLogin({username:req.body.username});
+    if(!userExist){
+      users.push(newUser);
+      await addUser(newUser);
+      res.redirect('/login');
+    }
+    else{
+      res.redirect('/register')
+    }
   } catch (e) {
     res.redirect('/register')
   }
@@ -255,17 +263,17 @@ app.get('/devices/uplink/get',checkAuthenticated,async (req,res)=>{
 
 app.post('/group/invite',checkAuthenticated,async (req,res)=>{
   var account = await accountInfo({username:req.user.username});
-  console.log(req.body.memberID);
-  var member = await accountInfo({id:parseInt(req.body.memberID)})
-  console.log(member);
+  var member = await accountInfo({id:parseInt(req.body.memberID)});
   var group = await groupGet({groupID:account.Group.groupID});
-  var data = {
-    memberName:member.username,
-    memberID:member.id,
-    memberRole:req.body.memberRole
-  }
-  await addGroupMember(group.groupID,data);
+  await postInvite(group.groupID,account.id,member.id,req.body.memberRole);
+  // var data = {
+  //   memberName:member.username,
+  //   memberID:member.id,
+  //   memberRole:req.body.memberRole
+  // }
+  // await addGroupMember(group.groupID,data);
   res.redirect('/group');
+
 })
 
 //app.use(bodyParser.urlencoded());
@@ -289,6 +297,15 @@ app.post('/devices/uplink',async (req,res)=>{
   //console.log(res);
   res.status(200);
   res.send("Dati trasmessi");
+})
+
+app.get('/invite/',async(req,res)=>{
+  if (req.query.invite){
+    var data = await getInvite({inviteLink:req.query.invite});
+    var group = await groupGet({groupID:data.groupID})
+    data.groupName = group.groupName;
+    res.render('invite',{data,username:false})
+  }
 })
 
 function checkNotAuthenticated(req,res,next){

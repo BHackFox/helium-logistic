@@ -101,9 +101,13 @@ var role = {
   Access:[CREATE,ADD,DELETE,MODIFY,USER,SETTING]
 }
 
+// La creazione dei ruoli deve essere implementata ad ogni azione di post/get degli utenti
+// Va performata su app.get/post('',checkAuthenticated,async(req,res)=>{s})
+
 var invite = {
+  inviteLink:null,
   groupID:null,
-  userLink:null,
+  userID:null,
   userInvited:null,
   userRole:null,
   time:null,
