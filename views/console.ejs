@@ -80,20 +80,42 @@
         </div>
       <%}%>
     </div>
-    <table id="devices">
-      <tr>
-        <td>Device ID</td>
-        <td>Name</td>
-        <td>Group</td>
-      </tr>
-      <%for (var i=0;i<group.Devices.length;i++){%>
+    <form class="" action="/console/" method="get">
+      <input type="text" name="search" placeholder="Search Device">
+      <input type="submit" value="Search">
+    </form>
+    <%if(group){%>
+      <table id="devices">
         <tr>
-          <td>#<%=group.Devices[i].deviceID%></td>
-          <td><a href="/console/?device=<%=group.Devices[i].deviceID%>"><%=group.Devices[i].deviceName%></a></td>
-          <td><%=group.groupID%></td>
+          <td>Device ID</td>
+          <td>Name</td>
+          <td>Group</td>
         </tr>
-        <%}%>
-    </table>
+        <%for (var i=0;i<group.Devices.length;i++){%>
+          <tr>
+            <td>#<%=group.Devices[i].deviceID%></td>
+            <td><a href="/console/?device=<%=group.Devices[i].deviceID%>"><%=group.Devices[i].deviceName%></a></td>
+            <td><%=group.groupID%></td>
+          </tr>
+          <%}%>
+        </table>
+    <%}%>
+    <%if(deviceFound){%>
+      <table id="devices">
+        <tr>
+          <td>Device ID</td>
+          <td>Name</td>
+          <td>Group</td>
+        </tr>
+        <%for (var i=0;i<deviceFound.length;i++){%>
+          <tr>
+            <td>#<%=deviceFound[i].deviceID%></td>
+            <td><a href="/console/?device=<%=deviceFound[i].deviceID%>"><%=deviceFound[i].deviceName%></a></td>
+            <td><%=account.Group.groupID%></td>
+          </tr>
+          <%}%>
+        </table>
+    <%}%>
     </div>
     <form class="" action="/console/" method="post">
       <input type="text" name="device" placeholder="Device">

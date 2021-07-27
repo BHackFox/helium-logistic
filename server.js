@@ -33,6 +33,7 @@ initializePassport(passport,
   async id => await infoLogin({id:id})
 )
 
+app.use(express.static('public'))
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -166,16 +167,25 @@ app.get('/console/',checkAuthenticated,async(req,res)=>{
       var devices = await getDevices(account.Group.groupID);
       var device = devices.find(id => id.deviceID == req.query.device);
       if(device){
-        res.render('device',{account,device})
+        res.render('device',{account,device,group:false,deviceFound:false})
       }
       else{
         res.redirect('/console/')
       }
     }
-
+    else if(req.query.search){
+      var devices = await getDevices(account.Group.groupID);
+      var deviceFound = [];
+      for (var i = 0; i < group.Devices.length; i++) {
+        if(group.Devices[i].deviceName.match(req.query.search) || group.Devices[i].deviceID.toString().match(req.query.search)){
+          deviceFound.push(group.Devices[i]);
+        }
+      }
+      res.render('console',{account,deviceFound,group:false})
+    }
     else{
 
-      res.render('console',{account,group})
+      res.render('console',{account,group,deviceFound:false})
     }
   }
   else{
@@ -225,6 +235,7 @@ app.post('/console/',checkAuthenticated,async(req,res)=>{
     }
 
   }
+
   res.redirect('/console/'+redir)
 })
 
@@ -307,6 +318,11 @@ app.get('/invite/',async(req,res)=>{
     res.render('invite',{data,username:false})
   }
 })
+
+app.use(function(req, res, next) {
+  res.status(404);
+  res.sendFile(path.join(__dirname,'public/404.html'))
+});
 
 function checkNotAuthenticated(req,res,next){
   if(req.isAuthenticated()){
