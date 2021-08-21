@@ -121,3 +121,8 @@ var invite = {
 // Devo capire come funziona l'email
 // Bisogna fare il collegamento tra i due database (gruppo e inviti)
 // Creare un link alla domanda di invito
+
+
+// Inserimento della mappa da mapbox
+// Cosa molto utile per vedere in maniera tangibile dove sono i dispositivi
+// Creazione di un collector

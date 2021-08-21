@@ -8,7 +8,7 @@ services:
    - "3000:3000"
   links:
    - mongo
- mongo:
+ localhost:
   container_name: mongo
   image: mongo
   ports:

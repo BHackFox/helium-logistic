@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb://mongo:27017/userSchema";
+const uri = "mongodb://localhost:27017/userSchema";
 
 
 async function run(deviceData) {
@@ -18,11 +18,11 @@ async function run(deviceData) {
     }
     const database = client.db('deviceDB');
     const device = database.collection('devices');
-    await device.update({deviceID:deviceData.deviceID},{$push:{data:data}});
+    await device.updateOne({deviceID:deviceData.deviceID},{$push:{data:data}});
 
     const database1 = client.db('groupDB');
     const group = database1.collection('groups');
-    await group.update({groupID:deviceData.groupID,"Devices.deviceID":deviceData.deviceID},{$set:{"Devices.$.lastData":data}})
+    await group.updateOne({groupID:deviceData.groupID,"Devices.deviceID":deviceData.deviceID},{$set:{"Devices.$.lastData":data}})
     await client.close();
   }
   catch(e){

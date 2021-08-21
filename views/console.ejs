@@ -2,6 +2,22 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      $(function() {
+        $("td[colspan=3]").find("div").hide();
+        $("tr").click(function(event) {
+            var $target = $(event.target);
+            $target.closest("tr").next().find("div").slideToggle();
+        });
+      });
+    </script>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.js"></script>
+    <style>
+      #map { position:absolute; top: 50%; bottom: 0; width: 40%; height: 30%}
+    </style>
     <style>
       body {
         margin: 0;
@@ -54,7 +70,9 @@
         border: 1px solid #ddd;
         padding: 8px;
       }
-
+      #expand td{
+        padding: 0px;
+      }
       #devices tr:nth-child(even){background-color: #f2f2f2;}
 
       #devices tr:hover {background-color: #ddd;}
@@ -69,6 +87,7 @@
     </style>
   </head>
   <body>
+    <% var devicesLocation = [] %>
     <div class="topnav">
       <a class="active" href="/">Home</a>
       <a href="#news">News</a>
@@ -77,6 +96,7 @@
         <div class="topnav-right">
           <a href="/console/">Console</a>
           <a href="/account/"><%=account.username %></a>
+          <a href="/group"><%=account.Group.groupName%></a>
         </div>
       <%}%>
     </div>
@@ -92,13 +112,40 @@
           <td>Group</td>
         </tr>
         <%for (var i=0;i<group.Devices.length;i++){%>
+          <%if(group.Devices[i].lastData.lat){
+            var data = {
+            'type': 'Feature',
+            'properties':{
+              'message':group.Devices[i].deviceName
+            },
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [
+                group.Devices[i].lastData.lat, group.Devices[i].lastData.lon
+              ]
+            },
+            'properties': {
+              'title': group.Devices[i].deviceName
+            }
+          };
+            devicesLocation.push(data)};%>
+
           <tr>
             <td>#<%=group.Devices[i].deviceID%></td>
             <td><a href="/console/?device=<%=group.Devices[i].deviceID%>"><%=group.Devices[i].deviceName%></a></td>
             <td><%=group.groupID%></td>
           </tr>
-          <%}%>
-        </table>
+          <tr id="expand">
+            <td colspan="3">
+              <div>
+                <p><%=group.Devices[i].lastData.lat%></p>
+                <p><%=group.Devices[i].lastData.lon%></p>
+                <p><%=group.Devices[i].lastData.stat%></p>
+              </div>
+            </td>
+          </tr>
+        <%}%>
+      </table>
     <%}%>
     <%if(deviceFound){%>
       <table id="devices">
@@ -113,16 +160,77 @@
             <td><a href="/console/?device=<%=deviceFound[i].deviceID%>"><%=deviceFound[i].deviceName%></a></td>
             <td><%=account.Group.groupID%></td>
           </tr>
+          <tr id="expand">
+            <td colspan="3">
+              <div>
+                <p><%=deviceFound[i].lastData.lat%></p>
+                <p><%=deviceFound[i].lastData.lon%></p>
+                <p><%=deviceFound[i].lastData.stat%></p>
+              </div>
+            </td>
+          </tr>
           <%}%>
         </table>
     <%}%>
     </div>
-    <form class="" action="/console/" method="post">
-      <input type="text" name="device" placeholder="Device">
-      <input type="submit" value="Add">
-    </form>
+    <%if(account.Group.groupRole == "CREATOR" || account.Group.groupRole == "ADMIN"){%>
+      <form class="" action="/console/" method="post">
+        <input type="text" name="device" placeholder="Device">
+        <input type="submit" value="Add">
+      </form>
+    <%}%>
+    <div id="map"></div>
+    <script>
+      	// TO MAKE THE MAP APPEAR YOU MUST
+      	// ADD YOUR ACCESS TOKEN FROM
+      	// https://account.mapbox.com
+      mapboxgl.accessToken = 'pk.eyJ1IjoiYmhhY2tmb3giLCJhIjoiY2tzbHc2b3VtMDkxYTJ1cDB0Yzhuc3M3YiJ9.ZK09ZaAk7SpqDkuz2D6MLg';
+      const map = new mapboxgl.Map({
+      container: 'map', // container ID
+      style: 'mapbox://styles/mapbox/dark-v10', // style URL
+      center: [12.4964, 41.9028], // starting position [lng, lat]
+      zoom: 5 // starting zoom
+      });
+
+      map.on('load', () => {
+// Add an image to use as a custom marker
+        map.loadImage(
+          '/icon/mapbox-marker-icon-20px-red.png',
+          (error, image) => {
+            if (error) throw error;
+            map.addImage('custom-marker', image);
+            // Add a GeoJSON source with 2 points
+            map.addSource('points', {
+              'type': 'geojson',
+              'data': {
+                'type': 'FeatureCollection',
+                'features': <%-JSON.stringify(devicesLocation)%>
+              }
+            });
+
+            // Add a symbol layer
+            map.addLayer({
+              'id': 'points',
+              'type': 'symbol',
+              'source': 'points',
+              'layout': {
+                'icon-image': 'custom-marker',
+              // get the title name from the source's "title" property
+                'text-field': ['get', 'title'],
+                'text-font': [
+                    'Open Sans Semibold',
+                    'Arial Unicode MS Bold'
+                ],
+                'text-offset': [0, 1.25],
+                'text-anchor': 'top'
+              }
+            });
+          }
+        );
+      });
+    </script>
     <div class="footer">
-      <h1>ciao</h1>
+      <div id="map"></div>
     </div>
   </body>
 </html>

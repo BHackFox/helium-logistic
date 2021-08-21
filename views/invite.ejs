@@ -47,21 +47,21 @@
       <a class="active" href="/">Home</a>
       <a href="#news">News</a>
       <a href="#contact">Contact</a>
-      <% if(!username){ %>
+      <% if(!user){ %>
         <div class="topnav-right">
           <a href="/login">Login</a>
           <a href="/register">Register</a>
         </div>
       <% }%>
-      <%if(username){ %>
+      <%if(user){ %>
         <div class="topnav-right">
           <a href="/console/">Console</a>
-          <a href="/account/"><%=username %></a>
-          <%if(Group){%>
-            <%if(Group.groupName){%>
-              <a href="/group"><%=Group.groupName%></a>
+          <a href="/account/"><%=user.username %></a>
+          <%if(user.Group){%>
+            <%if(user.Group.groupName){%>
+              <a href="/group"><%=user.Group.groupName%></a>
             <%}%>
-            <%if(!Group.groupName){%>
+            <%if(!user.Group.groupName){%>
               <a href="/group">+ Group</a>
             <%}%>
           <%}%>
@@ -73,6 +73,10 @@
       <h1><%=data.groupName%></h1>
       <h1><%=data.userRole%></h1>
     </div>
+    <form action="/invite" method="post">
+      <input type="hidden" name="inviteLink" value="<%=data.inviteLink%>">
+      <input type="submit" value="OK">
+    </form>
     <div class="footer">
       <h1>ciao</h1>
     </div>
