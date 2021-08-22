@@ -19,6 +19,19 @@ async function run(groupID,memberData) {
     const database = client.db('groupDB');
     const group = database.collection('groups');
     await group.update({groupID:groupID},{$push:{members:data}});
+
+    var newGroupName = await group.findOne({groupID:groupID});
+    console.log(newGroupName);
+    var groupData = {
+      groupName: newGroupName.groupName,
+      groupID:groupID,
+      groupRole:memberData.memberRole
+    }
+
+    const database1 = client.db('userLogin');
+    const user = database1.collection('users');
+    console.log(groupData);
+    await user.update({id:memberData.memberID},{$set:{Group:groupData}});
     //console.log(result);
   } finally {
     // Ensures that the client will close when you finish/error

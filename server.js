@@ -22,6 +22,9 @@ const bodyParser = require('body-parser')
 const groupPost = require('./group/group-post')
 const groupGet = require('./group/group-get')
 const addGroupMember = require('./group/add-group-member')
+const getInvite = require('./invite/get-invite')
+const postInvite = require('./invite/post-invite')
+const acceptInvite = require('./invite/accept-invite')
 // initializePassport(passport,
 //   username => users.find(user => user.username == username),
 //   id => users.find(user => user.id == id)
@@ -31,6 +34,7 @@ initializePassport(passport,
   async id => await infoLogin({id:id})
 )
 
+app.use(express.static('public'))
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -68,11 +72,18 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
+// app.use((req,res,next)=>{
+//   req.redirect = req.redirect;
+//   console.log(req.redirect);
+//   next();
+// })
 
 
 app.get('/',(req,res)=>{
 
   var user_name = false;
+  req.session.redirect = "/"
+  console.log(req.user);
   if(req.user){
     res.render('home',{username:req.user.username,Group:req.user.Group,id:req.user.id})
   }
@@ -82,16 +93,20 @@ app.get('/',(req,res)=>{
 })
 
 app.get('/login',checkNotAuthenticated,async(req,res)=>{
-  res.render('login')
+  if(!req.session.redirect){
+    req.session.redirect = "/"
+  }
+  res.render('login',{redirect:req.redirect})
 })
 app.post('/login',passport.authenticate('local',{
-  successRedirect: '/',
   failureRedirect: '/login',
   failureFlash: true
-}))
+}),(req,res)=>{
+  res.redirect(req.session.redirect)
+})
 
 app.get('/register',checkNotAuthenticated,(req,res)=>{
-  res.render('register');
+  res.render('register',{error:false});
 })
 
 app.get('/logout',checkAuthenticated,(req,res)=>{
@@ -112,15 +127,22 @@ app.post('/register', async(req,res)=>{
       },
       Group:{}
     };
-    users.push(newUser);
-    await addUser(newUser);
-    res.redirect('/login');
+    var userExist = await infoLogin({username:req.body.username});
+    if(!userExist){
+      users.push(newUser);
+      await addUser(newUser);
+      res.redirect('/login');
+    }
+    else{
+      res.render('register',{error:true})
+    }
   } catch (e) {
     res.redirect('/register')
   }
 })
 
 app.get('/account/',checkAuthenticated,async(req,res)=>{
+  req.session.redirect = "/"
   var account = await accountInfo({username:req.user.username})
   res.render('account',account);
 })
@@ -149,6 +171,7 @@ app.get('/mail',(req,res)=>{
 })
 
 app.get('/console/',checkAuthenticated,async(req,res)=>{
+  req.session.redirect = "/"
   var account = await accountInfo({username:req.user.username});
   if(account.Group.groupID){
     var group = await groupGet({groupID:account.Group.groupID});
@@ -158,38 +181,43 @@ app.get('/console/',checkAuthenticated,async(req,res)=>{
       var devices = await getDevices(account.Group.groupID);
       var device = devices.find(id => id.deviceID == req.query.device);
       if(device){
-        res.render('device',{account,device})
+        res.render('device',{account,device,group:false,deviceFound:false})
       }
       else{
         res.redirect('/console/')
       }
     }
-
+    else if(req.query.search){
+      var devices = await getDevices(account.Group.groupID);
+      var deviceFound = [];
+      for (var i = 0; i < group.Devices.length; i++) {
+        if(group.Devices[i].deviceName.match(req.query.search) || group.Devices[i].deviceID.toString().match(req.query.search)){
+          deviceFound.push(group.Devices[i]);
+        }
+      }
+      res.render('console',{account,deviceFound,group:false})
+    }
     else{
 
-      res.render('console',{account,group})
+      res.render('console',{account,group,deviceFound:false})
     }
   }
   else{
-    console.log(ret);
     res.redirect('/group')
   }
 })
 
 app.post('/console/',checkAuthenticated,async(req,res)=>{
+  req.session.redirect = "/"
   var account = await accountInfo({username:req.user.username});
-  if(req.body.device){
+  if(req.body.device && (account.Group.groupRole == "CREATOR" || account.Group.groupRole == "ADMIN")){
     var device = {
       deviceName : req.body.device,
       deviceID : Date.now()
     }
-    // if (!ret.Devices.find(device => device.name == req.body.device)){
+
     await addDevice(account.Group.groupID,device);
-    // }
-    // else{
-    //   console.log("Dispositivo gia esistente");
-    // }
-    //req.user.Devices.push(device);
+
   }
   var redir = "";
   if(req.query.device){
@@ -217,11 +245,13 @@ app.post('/console/',checkAuthenticated,async(req,res)=>{
     }
 
   }
+
   res.redirect('/console/'+redir)
 })
 
 
 app.get('/group',checkAuthenticated,async(req,res)=>{
+  req.session.redirect = "/"
   var account = await accountInfo({username:req.user.username})
   var group = await groupGet({groupID:account.Group.groupID})
   console.log(group);
@@ -229,6 +259,7 @@ app.get('/group',checkAuthenticated,async(req,res)=>{
 })
 
 app.post('/group',checkAuthenticated,async(req,res)=>{
+  req.session.redirect = "/"
   var account = await accountInfo({username:req.user.username})
   if(!account.Group.groupID){
     var groupID = await groupPost(req.user,req.body.name);
@@ -242,36 +273,34 @@ app.post('/group',checkAuthenticated,async(req,res)=>{
   }
 })
 
-app.get('/devices/uplink',(req,res)=>{
-  res.render('uplink',{result:""})
-})
-
-app.get('/devices/uplink/get',checkAuthenticated,async (req,res)=>{
-  var account = await accountInfo({username:req.user.username})
-  var dev = await getDevices(account.Group.groupID);
-  console.log(dev);
-  res.render('uplink',{result:dev})
-})
 
 app.post('/group/invite',checkAuthenticated,async (req,res)=>{
+  req.session.redirect = "/"
   var account = await accountInfo({username:req.user.username});
-  console.log(req.body.memberID);
-  var member = await accountInfo({id:parseInt(req.body.memberID)})
-  console.log(member);
+  //Bisogna cambiare il database per i member non ancora registrati
+  var member = await accountInfo({username:req.body.memberName});
   var group = await groupGet({groupID:account.Group.groupID});
-  var data = {
-    memberName:member.username,
-    memberID:member.id,
-    memberRole:req.body.memberRole
+  var invite = await getInvite({userInvited:req.body.memberName})
+  console.log(invite);
+  if(!invite){
+    await postInvite(group.groupID,account.id,req.body.memberName,req.body.memberRole);
   }
-  await addGroupMember(group.groupID,data);
+  console.log("non entra");
+  // var data = {
+  //   memberName:member.username,
+  //   memberID:member.id,
+  //   memberRole:req.body.memberRole
+  // }
+  // await addGroupMember(group.groupID,data);
   res.redirect('/group');
+
 })
 
 //app.use(bodyParser.urlencoded());
 app.post('/devices/uplink',async (req,res)=>{
  // req.device = req.body;
  var b = req.body;
+ console.log(b);
  var data = {
    deviceID:b.decoded.payload.deviceID,
    groupID:b.decoded.payload.groupID,
@@ -290,6 +319,57 @@ app.post('/devices/uplink',async (req,res)=>{
   res.status(200);
   res.send("Dati trasmessi");
 })
+
+app.get('/invite/',async(req,res)=>{
+  if (req.query.invite){
+    var data = await getInvite({inviteLink:req.query.invite});
+    if(data && !data.timeAccept){
+      console.log(data);
+      var group = await groupGet({groupID:data.groupID})
+      data.groupName = group.groupName;
+      req.session.redirect = "/invite/?invite="+data.inviteLink;
+      res.render('invite',{data,user:req.user})
+    }
+    else{
+      res.redirect("/")
+    }
+  }
+})
+
+app.post('/invite/',checkAuthenticated,async(req,res)=>{
+  var data1 = await getInvite({inviteLink:req.body.inviteLink});
+  if(!data1){
+    res.redirect('/');
+  }
+  var group = await groupGet({groupID:data1.groupID})
+  var data = {info:true,groupID:data1.groupID,groupName:group.groupName,groupRole:data1.userRole}
+  if(!req.user){
+    res.redirect('/login')
+  }
+  else if(data1.timeAccept){
+    res.redirect("/")
+  }
+  else if(req.user.username != data1.userInvited){
+    res.redirect("/")
+  }
+  else{
+    await updateAccount(req.user.username,data);
+    await acceptInvite(req.body.inviteLink);
+    var data = {
+      memberName:req.user.username,
+      memberID:req.user.id,
+      memberRole:data1.userRole
+    }
+    await addGroupMember(group.groupID,data);
+    res.redirect('/group')
+  }
+})
+
+
+app.use(function(req, res, next) {
+  res.status(404);
+  res.sendFile(path.join(__dirname,'public/404.html'))
+});
 
 function checkNotAuthenticated(req,res,next){
   if(req.isAuthenticated()){
