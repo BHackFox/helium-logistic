@@ -74,7 +74,7 @@ app.get('/',(req,res)=>{
 
   var user_name = false;
   if(req.user){
-    res.render('home',{username:req.user.username,Group:req.user.Group})
+    res.render('home',{username:req.user.username,Group:req.user.Group,id:req.user.id})
   }
   else {
     res.render('home',{username:false,Group:false})
