@@ -85,6 +85,9 @@ app.get('/',(req,res)=>{
   req.session.redirect = "/"
   console.log(req.user);
   if(req.user){
+    var nid = req.user.id+req.user.Group.groupID;
+    console.log(nid);
+    console.log(nid.toString(16));
     res.render('home',{username:req.user.username,Group:req.user.Group,id:req.user.id})
   }
   else {
@@ -178,7 +181,7 @@ app.get('/console/',checkAuthenticated,async(req,res)=>{
     //console.log({ret,device});
     console.log(group);
     if (req.query.device){
-      var devices = await getDevices(account.Group.groupID);
+      var devices = await getDevices({groupID:account.Group.groupID});
       var device = devices.find(id => id.deviceID == req.query.device);
       if(device){
         res.render('device',{account,device,group:false,deviceFound:false})
@@ -188,7 +191,7 @@ app.get('/console/',checkAuthenticated,async(req,res)=>{
       }
     }
     else if(req.query.search){
-      var devices = await getDevices(account.Group.groupID);
+      var devices = await getDevices({groupID:account.Group.groupID});
       var deviceFound = [];
       for (var i = 0; i < group.Devices.length; i++) {
         if(group.Devices[i].deviceName.match(req.query.search) || group.Devices[i].deviceID.toString().match(req.query.search)){
@@ -301,23 +304,30 @@ app.post('/devices/uplink',async (req,res)=>{
  // req.device = req.body;
  var b = req.body;
  console.log(b);
- var data = {
-   deviceID:b.decoded.payload.deviceID,
-   groupID:b.decoded.payload.groupID,
-   status:"UP",
-   lat:b.hotspots[0].lat,
-   lon:b.hotspots[0].long,
-   stat:b.decoded.payload.stat
-   // beacon:{
-   //
-   // }
+ var device = await getDevices({deviceID:b.decoded.payload.deviceID});
+ if(device[0] && device[0].groupID){
+   var data = {
+     deviceID:b.decoded.payload.deviceID,
+     groupID:b.decoded.payload.groupID,
+     status:"UP",
+     lat:b.hotspots[0].lat,
+     lon:b.hotspots[0].long,
+     stat:b.decoded.payload.stat
+     // beacon:{
+       //
+       // }
+     }
+     await postUplink(data);
+     //console.log(req);
+     console.log(Date.now());
+     //console.log(res);
+     res.status(200);
+     res.send("Dati trasmessi");
  }
-  await postUplink(data);
-  //console.log(req);
-  console.log(Date.now());
-  //console.log(res);
-  res.status(200);
-  res.send("Dati trasmessi");
+ else {
+   res.status(300);
+   res.send("Error Wrong Device or Group ID");
+ }
 })
 
 app.get('/invite/',async(req,res)=>{
