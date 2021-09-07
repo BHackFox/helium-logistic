@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 
 async function connectMongoDB(){
 
-  const uri = "mongodb+srv://fede:fede@cluster1.vzqut.mongodb.net/userSchema?retryWrites=true&w=majority";
+  const uri = "";
 
   const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
