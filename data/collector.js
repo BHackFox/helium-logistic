@@ -126,3 +126,14 @@ var invite = {
 // Inserimento della mappa da mapbox
 // Cosa molto utile per vedere in maniera tangibile dove sono i dispositivi
 // Creazione di un collector
+
+
+var changePassword = {
+  changeID:null,
+  userID:null,
+  time:null,
+  timeAccept:null
+}
+
+// Creazione dell'oggetto changePassword
+// Implementato solamente con l'utilizzo di passwordCheck nel login

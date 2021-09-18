@@ -84,6 +84,10 @@
         background-color: #04AA6D;
         color: white;
       }
+      .mapboxgl-popup {
+        max-width: 400px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      }
     </style>
   </head>
   <body>
@@ -116,7 +120,7 @@
             var data = {
             'type': 'Feature',
             'properties':{
-              'message':group.Devices[i].deviceName
+              'description':group.Devices[i].deviceName
             },
             'geometry': {
               'type': 'Point',
@@ -187,7 +191,7 @@
       mapboxgl.accessToken = 'pk.eyJ1IjoiYmhhY2tmb3giLCJhIjoiY2tzbHc2b3VtMDkxYTJ1cDB0Yzhuc3M3YiJ9.ZK09ZaAk7SpqDkuz2D6MLg';
       const map = new mapboxgl.Map({
       container: 'map', // container ID
-      style: 'mapbox://styles/mapbox/dark-v10', // style URL
+      style: 'mapbox://styles/mapbox/streets-v11', // style URL
       center: [12.4964, 41.9028], // starting position [lng, lat]
       zoom: 5 // starting zoom
       });
@@ -195,7 +199,7 @@
       map.on('load', () => {
 // Add an image to use as a custom marker
         map.loadImage(
-          '/icon/mapbox-marker-icon-20px-red.png',
+          '/icon/mapbox-marker-icon-20px-green.png',
           (error, image) => {
             if (error) throw error;
             map.addImage('custom-marker', image);
@@ -227,10 +231,39 @@
             });
           }
         );
+        const popup = new mapboxgl.Popup({
+          closeButton: false,
+          closeOnClick: false
+        });
+        map.on('mouseenter', 'places', (e) => {
+          // Change the cursor style as a UI indicator.
+          map.getCanvas().style.cursor = 'pointer';
+
+          // Copy coordinates array.
+          const coordinates = e.features[0].geometry.coordinates.slice();
+          const description = e.features[0].properties.description;
+
+          // Ensure that if the map is zoomed out such that multiple
+          // copies of the feature are visible, the popup appears
+          // over the copy being pointed to.
+          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+          }
+
+          // Populate the popup and set its coordinates
+          // based on the feature found.
+          popup.setLngLat(coordinates).setHTML(description).addTo(map);
+        });
+
+        map.on('mouseleave', 'places', () => {
+          map.getCanvas().style.cursor = '';
+          popup.remove();
+        });
       });
+
     </script>
     <div class="footer">
-      <div id="map"></div>
+
     </div>
   </body>
 </html>

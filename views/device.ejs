@@ -2,6 +2,12 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.js"></script>
+    <style>
+      #map { position:absolute; top: 50%; bottom: 0; width: 40%; height: 30%}
+    </style>
     <style>
       body {
         margin: 0;
@@ -97,12 +103,28 @@
           <td>Longitude</td>
           <td>Status</td>
         </tr>
+        <% var route = []; var devicesLocation = [];%>
         <%for(var k=0;k<device.data.length;k++){%>
           <% var i = device.data.length-k-1; %>
+          <% var data_push = [device.data[i].lat,device.data[i].lon]; route.push(data_push);%>
+          <% var a = new Date(device.data[i].time);var year = a.getYear()-100; month = a.getMonth()+1;var date = a.getDate();var hour = a.getHours();var min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();var sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds(); var time = date + '/' + month + '/' + year + ' ' + hour + ':' + min + ':' + sec;%>
+          <% var data = {
+              'type': 'Feature',
+              'properties':{
+                'description':time
+              },
+              'geometry': {
+                'type': 'Point',
+                'coordinates': data_push
+              },
+              'properties': {
+                'title': time
+              }
+            };%>
+            <%devicesLocation.push(data)%>
           <tr>
 
             <td><%=device.data[i].dataID%></td>
-            <% var a = new Date(device.data[i].time);var year = a.getYear()-100; month = a.getMonth()+1;var date = a.getDate();var hour = a.getHours();var min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();var sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds();; var time = date + '/' + month + '/' + year + ' ' + hour + ':' + min + ':' + sec;%>
             <td><%=time%></td>
             <td><%=device.data[i].lat%></td>
             <td><%=device.data[i].lon%></td>
@@ -113,4 +135,75 @@
 
     </div>
   </body>
+  <div id="map"></div>
+  <script>
+  	mapboxgl.accessToken = 'pk.eyJ1IjoiYmhhY2tmb3giLCJhIjoiY2tzbHc2b3VtMDkxYTJ1cDB0Yzhuc3M3YiJ9.ZK09ZaAk7SpqDkuz2D6MLg';
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [<%=device.data[device.data.length-1].lat%>, <%=device.data[device.data.length-1].lon%>],
+      zoom: 15
+    });
+
+  map.on('load', () => {
+    map.addSource('route', {
+      'type': 'geojson',
+      'data': {
+        'type': 'Feature',
+        'properties': {},
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': <%- JSON.stringify(route) %>
+        }
+      }
+    });
+
+    map.addLayer({
+      'id': 'route',
+      'type': 'line',
+      'source': 'route',
+      'layout': {
+        'line-join': 'bevel',
+        'line-cap': 'round'
+      },
+      'paint': {
+        'line-color': '#3e3e3e',
+        'line-width': 8
+      }
+    });
+    map.loadImage(
+      '/icon/mapbox-marker-icon-20px-green.png',
+      (error, image) => {
+        if (error) throw error;
+        map.addImage('custom-marker', image);
+        // Add a GeoJSON source with 2 points
+        map.addSource('points', {
+          'type': 'geojson',
+          'data': {
+            'type': 'FeatureCollection',
+            'features': <%-JSON.stringify(devicesLocation)%>
+          }
+        });
+
+        // Add a symbol layer
+        map.addLayer({
+          'id': 'points',
+          'type': 'symbol',
+          'source': 'points',
+          'layout': {
+            'icon-image': 'custom-marker',
+          // get the title name from the source's "title" property
+            'text-field': ['get', 'title'],
+            'text-font': [
+                'Open Sans Semibold',
+                'Arial Unicode MS Bold'
+            ],
+            'text-offset': [0, 1.25],
+            'text-anchor': 'top'
+          }
+        });
+      }
+    );
+  });
+  </script>
 </html>

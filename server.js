@@ -376,6 +376,37 @@ app.post('/invite/',checkAuthenticated,async(req,res)=>{
 })
 
 
+
+var data123 = "Real-Time Update 1";
+var number123 = 1;
+
+app.get('/server-sent-events', function(req, res) {
+
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
+
+    var interval = setInterval(function(){
+        data123 = "Real-Time Update "+number123;
+        console.log(req.user);
+        res.write("data: " + data123 + "\n\n")
+        number123++;
+    }, 1000);
+
+    // close
+    res.on('close', () => {
+        clearInterval(interval);
+        res.end();
+    });
+})
+
+function randomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
 app.use(function(req, res, next) {
   res.status(404);
   res.sendFile(path.join(__dirname,'public/404.html'))
