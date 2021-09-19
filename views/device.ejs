@@ -106,7 +106,7 @@
         <% var route = []; var devicesLocation = [];%>
         <%for(var k=0;k<device.data.length;k++){%>
           <% var i = device.data.length-k-1; %>
-          <% var data_push = [device.data[i].lat,device.data[i].lon]; route.push(data_push);%>
+          <% var data_push = [device.data[i].lon.device.data[i].lat]; route.push(data_push);%>
           <% var a = new Date(device.data[i].time);var year = a.getYear()-100; month = a.getMonth()+1;var date = a.getDate();var hour = a.getHours();var min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();var sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds(); var time = date + '/' + month + '/' + year + ' ' + hour + ':' + min + ':' + sec;%>
           <% var data = {
               'type': 'Feature',
