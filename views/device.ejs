@@ -141,7 +141,7 @@
     const map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [<%=device.data[device.data.length-1].lat%>, <%=device.data[device.data.length-1].lon%>],
+      center: [<%=device.data[device.data.length-1].lon%>, <%=device.data[device.data.length-1].lat%>],
       zoom: 15
     });
 
