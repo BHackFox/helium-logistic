@@ -14,7 +14,8 @@ async function run(deviceData) {
       status:deviceData.status,
       lat:deviceData.lat,
       lon:deviceData.lon,
-      stat:deviceData.stat
+      stat:deviceData.stat,
+      hotspot:deviceData.hotspot
     }
     const database = client.db('deviceDB');
     const device = database.collection('devices');
