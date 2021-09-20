@@ -312,7 +312,8 @@ app.post('/devices/uplink',async (req,res)=>{
      status:"UP",
      lat:b.hotspots[0].lat,
      lon:b.hotspots[0].long,
-     stat:b.decoded.payload.stat
+     stat:b.decoded.payload.stat,
+     hotspot:b.hotspots[0].id
      // beacon:{
        //
        // }

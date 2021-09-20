@@ -102,6 +102,7 @@
           <td>Latitude</td>
           <td>Longitude</td>
           <td>Status</td>
+          <td>Hotspot</td>
         </tr>
         <% var route = []; var devicesLocation = [];%>
         <%for(var k=0;k<device.data.length;k++){%>
@@ -129,6 +130,7 @@
             <td><%=device.data[i].lat%></td>
             <td><%=device.data[i].lon%></td>
             <td><%=device.data[i].status%></td>
+            <td><a href="https://explorer.helium.com/hotspots/<%=device.data[i].hotspot%>" target="_blank"><%=device.data[i].hotspot%></a></td>
         </tr>
         <%}%>
       </table>
