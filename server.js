@@ -304,30 +304,45 @@ app.post('/devices/uplink',async (req,res)=>{
  // req.device = req.body;
  var b = req.body;
  console.log(b);
- var device = await getDevices({deviceID:b.decoded.payload.deviceID});
- if(device[0] && device[0].groupID){
-   var data = {
-     deviceID:b.decoded.payload.deviceID,
-     groupID:b.decoded.payload.groupID,
-     status:"UP",
-     lat:b.hotspots[0].lat,
-     lon:b.hotspots[0].long,
-     stat:b.decoded.payload.stat,
-     hotspot:b.hotspots[0].id
-     // beacon:{
-       //
-       // }
-     }
-     await postUplink(data);
-     //console.log(req);
-     console.log(Date.now());
-     //console.log(res);
-     res.status(200);
-     res.send("Dati trasmessi");
+ if (b.decoded.payload.state == "TEST"){
+   console.log("TEST\n"+b.decoded.payload);
+   res.status(200);
+   res.send("Risposta test positiva");
  }
- else {
+ else if (b.decoded.payload.state == "POSITIVE") {
+   var device = await getDevices({deviceID:b.decoded.payload.deviceID});
+   if(device[0] && device[0].groupID){
+     var data = {
+       deviceID:b.decoded.payload.deviceID,
+       groupID:device[0].groupID,
+       status:"UP",
+       lat:b.hotspots[0].lat,
+       lon:b.hotspots[0].long,
+       stat:b.decoded.payload.stat,
+       hotspot:b.hotspots[0].id
+       // beacon:{
+         //
+         // }
+       }
+       await postUplink(data);
+       //console.log(req);
+       console.log(Date.now());
+       //console.log(res);
+       res.status(200);
+       res.send("Dati trasmessi");
+     }
+     else {
+       res.status(300);
+       res.send("Error Wrong Device or Group ID");
+     }
+ }
+ else if (b.decoded.payload.state == "NEGATIVE") {
    res.status(300);
-   res.send("Error Wrong Device or Group ID");
+   res.send("Risposta negativa");
+ }
+ else{
+   res.status(300);
+   res.send("Errore nella lettura dello state del dispositivo");
  }
 })
 
