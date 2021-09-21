@@ -129,7 +129,12 @@
             <td><%=device.data[i].lat%></td>
             <td><%=device.data[i].lon%></td>
             <td><%=device.data[i].status%></td>
-            <td><a href="https://explorer.helium.com/hotspots/<%=device.data[i].hotspot%>" target="_blank"><%=device.data[i].hotspot.substring(0,5)+"..."+device.data[i].hotspot.substring(device.data[i].hotspot.length-4,device.data[i].hotspot.length)%></a></td>
+            <% if (device.data[i].hotspot){%>
+              <td><a href="https://explorer.helium.com/hotspots/<%=device.data[i].hotspot%>" target="_blank"><%=device.data[i].hotspot.substring(0,5)+"..."+device.data[i].hotspot.substring(device.data[i].hotspot.length-4,device.data[i].hotspot.length)%></a></td>
+            <%}%>
+            <%else{%>
+              <td><a href="https://explorer.helium.com/hotspots/<%=device.data[i].hotspot%>" target="_blank"><%=device.data[i].hotspot%></a></td>
+            <%}%>
         </tr>
         <%}%>
       </table>
