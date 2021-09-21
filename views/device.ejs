@@ -132,7 +132,7 @@
             <% if (device.data[i].hotspot){%>
               <td><a href="https://explorer.helium.com/hotspots/<%=device.data[i].hotspot%>" target="_blank"><%=device.data[i].hotspot.substring(0,5)+"..."+device.data[i].hotspot.substring(device.data[i].hotspot.length-4,device.data[i].hotspot.length)%></a></td>
             <%}%>
-            <%else{%>
+            <%if (!device.data[i].hotspot){%>
               <td><a href="https://explorer.helium.com/hotspots/<%=device.data[i].hotspot%>" target="_blank"><%=device.data[i].hotspot%></a></td>
             <%}%>
         </tr>
