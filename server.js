@@ -25,6 +25,7 @@ const addGroupMember = require('./group/add-group-member')
 const getInvite = require('./invite/get-invite')
 const postInvite = require('./invite/post-invite')
 const acceptInvite = require('./invite/accept-invite')
+const postChangePassowrd = require('./changePassword/invite')
 // initializePassport(passport,
 //   username => users.find(user => user.username == username),
 //   id => users.find(user => user.id == id)
@@ -97,9 +98,14 @@ app.get('/',(req,res)=>{
 
 app.get('/login',checkNotAuthenticated,async(req,res)=>{
   if(!req.session.redirect){
-    req.session.redirect = "/"
+    req.session.redirect = "/";
   }
-  res.render('login',{redirect:req.redirect})
+  if(req.query.password == "lost"){
+    res.render('lostpassword',{msg:"",redirect:req.redirect});
+  }
+  else{
+    res.render('login',{redirect:req.redirect});
+  }
 })
 app.post('/login',passport.authenticate('local',{
   failureRedirect: '/login',
@@ -141,6 +147,20 @@ app.post('/register', async(req,res)=>{
     }
   } catch (e) {
     res.redirect('/register')
+  }
+})
+
+app.post('/recreate',checkNotAuthenticated,async(req,res)=>{
+  if(!req.session.redirect){
+    req.session.redirect = "/";
+  }
+  var user = accountInfo({username:req.body.username});
+  if (user){
+    await postChangePassowrd({userID:user.userID});
+    res.render('lostpassword',{msg:"Check your email!",redirect:req.session.redirect});
+  }
+  else{
+    res.redirect("/login/?password=lost")
   }
 })
 
@@ -306,6 +326,7 @@ app.post('/devices/uplink',async (req,res)=>{
  console.log(b);
  if (b.decoded.payload.state == "TEST"){
    console.log("TEST\n"+b.decoded.payload);
+   console.log(b.decoded.payload.lat,b.decoded.payload.lon);
    res.status(200);
    res.send("Risposta test positiva");
  }
