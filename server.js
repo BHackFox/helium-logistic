@@ -26,6 +26,8 @@ const getInvite = require('./invite/get-invite')
 const postInvite = require('./invite/post-invite')
 const acceptInvite = require('./invite/accept-invite')
 const postChangePassowrd = require('./changePassword/invite')
+const getInvitePassword = require('./changePassword/getInvitePassword')
+const tracking = require('./routes/tracking')
 // initializePassport(passport,
 //   username => users.find(user => user.username == username),
 //   id => users.find(user => user.id == id)
@@ -100,8 +102,23 @@ app.get('/login',checkNotAuthenticated,async(req,res)=>{
   if(!req.session.redirect){
     req.session.redirect = "/";
   }
-  if(req.query.password == "lost"){
+  if(req.query.password == "lost" && !req.query.id){
     res.render('lostpassword',{msg:"",redirect:req.redirect});
+  }
+  else if (req.query.password == "lost" && req.query.id) {
+    req.session.redirect = "/login/?password=lost"
+    var id = await getInvitePassword({changeID:parseInt(req.query.id)});
+    console.log(req.query.id);
+    console.log(id);
+    var account = await accountInfo({id:id.userID});
+    if (id){
+      console.log("sisisissi");
+      res.render('newpassword',{id,account});
+    }
+    else{
+      console.log("nope");
+      res.redirect(req.session.redirect)
+    }
   }
   else{
     res.render('login',{redirect:req.redirect});
@@ -154,13 +171,21 @@ app.post('/recreate',checkNotAuthenticated,async(req,res)=>{
   if(!req.session.redirect){
     req.session.redirect = "/";
   }
-  var user = accountInfo({username:req.body.username});
-  if (user){
-    await postChangePassowrd({userID:user.userID});
-    res.render('lostpassword',{msg:"Check your email!",redirect:req.session.redirect});
+  if(req.body.password){
+    console.log("Set password",req.body.username);
+    await updateAccount(req.body.username,{password:await bcrypt.hash(req.body.password, 10)})
+    res.redirect("/login");
   }
   else{
-    res.redirect("/login/?password=lost")
+    var user = await accountInfo({username:req.body.username});
+    console.log("user:",user);
+    if (user){
+      await postChangePassowrd(user.id);
+      res.render('lostpassword',{msg:"Check your email!",redirect:req.session.redirect});
+    }
+    else{
+      res.redirect("/login/?password=lost")
+    }
   }
 })
 
@@ -173,8 +198,10 @@ app.get('/account/',checkAuthenticated,async(req,res)=>{
 app.post('/account/',checkAuthenticated,async(req,res)=>{
   var data = {
     email:false,
-    blackTheme:false
+    blackTheme:false,
+    passport:false
   }
+  console.log();
   if(req.body.email){
     data.email = req.body.email;
   }
@@ -183,6 +210,9 @@ app.post('/account/',checkAuthenticated,async(req,res)=>{
   }
   else if (req.body.black) {
     data.blackTheme = "black";
+  }
+  else if (req.body.password) {
+    data.password = req.body.password;
   }
   await updateAccount(req.user.username,data)
   res.redirect('account');
@@ -412,7 +442,7 @@ app.post('/invite/',checkAuthenticated,async(req,res)=>{
   }
 })
 
-
+app.use('/tracking',tracking)
 
 var data123 = "Real-Time Update 1";
 var number123 = 1;

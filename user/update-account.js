@@ -20,6 +20,10 @@ async function run(query,data) {
     if(data.info){
       await user.updateOne({username:query},{$set:{"Group.groupName":data.groupName,"Group.groupID":data.groupID,"Group.groupRole":data.groupRole}})
     }
+    if(data.password){
+      console.log("password setted");
+      await user.update({username:query},{$set:{password:data.password}});
+    }
     await client.close();
   }
   catch{

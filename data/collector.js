@@ -137,3 +137,24 @@ var changePassword = {
 
 // Creazione dell'oggetto changePassword
 // Implementato solamente con l'utilizzo di passwordCheck nel login
+
+
+var tracking = {
+  trackID:null,
+  deviceID:null,
+  noDeviceID:null,
+  time:null,
+  startPoint:null,
+  endPoint:null,
+  interaction:[
+    {
+      location:null,
+      scanID:null,
+      time:null,
+      info:null
+    }
+  ]
+}
+
+// Classe tracking per la gestione e il tracciamento dei dispositivi o non dispositivi
+// Staccata dalla relazione con helium e con il network da usare nel trasporto

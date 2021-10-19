@@ -8,19 +8,13 @@ async function run(query) {
   .catch(err => { console.log(err); });
   try {
     const database = client.db('invitePasswordDB');
-    const group = database.collection('invitePassword');
-    var dataInvite = {
-      changeID:Date.now(),
-      userID:query,
-      time:Date.now(),
-      timeAccept:false
-    };
-    console.log(dataInvite);
-    //const result = await group.findOne({groupID:query});
-    await group.insertOne(dataInvite);
+    const user = database.collection('invitePassword');
+    const result = await user.findOne(query);
+    await client.close();
+    return result;
   }
   catch{
-    console.log("errore nel server");
+    console.log("error");
   }
 }
 
